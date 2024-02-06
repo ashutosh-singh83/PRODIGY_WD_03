@@ -1,34 +1,68 @@
-let currentPlayer = 'X';
-let board = ['', '', '', '', '', '', '', '', ''];
-let gameActive = true;
-
-function makeMove(index) {
-    if (board[index] === '' && gameActive) {
-        board[index] = currentPlayer;
-        document.getElementsByClassName('cell')[index].innerText = currentPlayer;
+let boxes=document.querySelectorAll(".box");
+let reset_button=document.querySelector(".reset-btn");
+let newGameButton=document.querySelector(".new-btn");
+let msgContainer=document.querySelector(".msg_container");
+let msg=document.querySelector(".msg");
+let turnX=true;//playerX player0
+const winPatterns=[
+    [0,1,2],
+    [3,4,5],
+    [6,7,8],
+    [0,3,6],
+    [1,4,7],
+    [2,5,8],
+    [0,4,8],
+    [2,4,6],
+];
+const resetGame=()=>{
+    turnX=true;
+    enableBoxes();
+    msgContainer.classList.add("hide");
+}
+boxes.forEach((box)=>{
+    box.addEventListener("click",()=>{
+        if(turnX){
+            box.innerText="X";
+            turnX=false;
+        }else{
+            box.innerText="O";
+            turnX=true;
+        }
+        box.disabled=true;
         checkWinner();
-        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    })
+})
+const enableBoxes=()=>{
+    for(let box of boxes){
+        box.disabled=false;
+        box.innerText="";
     }
 }
 
-function checkWinner() {
-    const winPatterns = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
-        [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
-        [0, 4, 8], [2, 4, 6]             // Diagonals
-    ];
-
-    for (const pattern of winPatterns) {
-        const [a, b, c] = pattern;
-        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-            alert(`Player ${board[a]} wins!`);
-            gameActive = false;
-            break;
+const disableBoxes=()=>{
+    for(let box of boxes){
+        box.disabled=true;
+    }
+}
+const showWinner=(winner)=>{
+    msg.innerText=`Congratulations,Winner is ${winner}`;
+    msgContainer.classList.remove("hide");
+    disableBoxes();
+}
+const checkWinner=()=>{
+    for(let pattern of winPatterns){
+        let pos1val=boxes[pattern[0]].innerText;
+        let pos2val=boxes[pattern[1]].innerText;
+        let pos3val=boxes[pattern[2]].innerText;
+        if(pos1val!=""&&pos2val!=""&&pos3val!=""){
+            if(pos1val===pos2val&&pos2val===pos3val){
+                console.log("Winner",pos1val);
+                showWinner(pos1val);
+            }
         }
     }
-
-    if (!board.includes('') && gameActive) {
-        alert('It\'s a draw!');
-        gameActive = false;
-    }
 }
+
+
+reset_button.addEventListener("click",resetGame);
+newGameButton.addEventListener("click",resetGame);
